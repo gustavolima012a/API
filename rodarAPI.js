@@ -6,18 +6,13 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static('.')); // libera seus arquivos HTML e JS
 
 /**
- * ROTAS CRUD para Projetos Ambientais (tabela: ambiental)
- *
- * POST   /projetoAmbiental        -> criar novo projeto
- * GET    /projetoAmbiental        -> listar todos
- * PUT    /projetoAmbiental/:id    -> atualizar
- * DELETE /projetoAmbiental/:id    -> excluir
+ * ROTAS CRUD - Tabela: ambiental
  */
 
-// Criar projeto ambiental
+// Criar projeto
 app.post('/projetoAmbiental', (req, res) => {
     const { nome_projeto, tipo_projeto, descricao, data_inicio, data_fim } = req.body;
 
@@ -25,13 +20,17 @@ app.post('/projetoAmbiental', (req, res) => {
         return res.status(400).json({ error: 'nome_projeto e tipo_projeto são obrigatórios' });
     }
 
-    const sql = 'INSERT INTO ambiental (nome_projeto, tipo_projeto, descricao, data_inicio, data_fim) VALUES (?, ?, ?, ?, ?)';
+    const sql = `
+        INSERT INTO ambiental (nome_projeto, tipo_projeto, descricao, data_inicio, data_fim)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+
     acessaBancoNoServidor.query(
         sql,
         [nome_projeto, tipo_projeto, descricao || null, data_inicio || null, data_fim || null],
         (err, results) => {
             if (err) {
-                console.error('DB error (INSERT):', err);
+                console.error('Erro INSERT:', err);
                 return res.status(500).json({ error: 'Erro ao cadastrar projeto' });
             }
             res.status(201).json({ message: 'Projeto cadastrado!', id: results.insertId });
@@ -40,11 +39,12 @@ app.post('/projetoAmbiental', (req, res) => {
 });
 
 // Listar projetos
-app.get('/projetoAmbiental', (req, res) => {
+app.get('/ambiental', (req, res) => {
     const sql = 'SELECT * FROM ambiental';
+
     acessaBancoNoServidor.query(sql, (err, results) => {
         if (err) {
-            console.error('DB error (SELECT):', err);
+            console.error('Erro SELECT:', err);
             return res.status(500).json({ error: 'Erro ao buscar projetos' });
         }
         res.json(results);
@@ -52,7 +52,7 @@ app.get('/projetoAmbiental', (req, res) => {
 });
 
 // Atualizar projeto
-app.put('/projetoAmbiental/:id', (req, res) => {
+app.put('/ambiental/:id', (req, res) => {
     const id = req.params.id;
     const { nome_projeto, tipo_projeto, descricao, data_inicio, data_fim } = req.body;
 
@@ -60,13 +60,18 @@ app.put('/projetoAmbiental/:id', (req, res) => {
         return res.status(400).json({ error: 'nome_projeto e tipo_projeto são obrigatórios' });
     }
 
-    const sql = 'UPDATE ambiental SET nome_projeto = ?, tipo_projeto = ?, descricao = ?, data_inicio = ?, data_fim = ? WHERE id = ?';
+    const sql = `
+        UPDATE ambiental
+        SET nome_projeto = ?, tipo_projeto = ?, descricao = ?, data_inicio = ?, data_fim = ?
+        WHERE id = ?
+    `;
+
     acessaBancoNoServidor.query(
         sql,
         [nome_projeto, tipo_projeto, descricao || null, data_inicio || null, data_fim || null, id],
         (err, result) => {
             if (err) {
-                console.error('DB error (UPDATE):', err);
+                console.error('Erro UPDATE:', err);
                 return res.status(500).json({ error: 'Erro ao atualizar projeto' });
             }
 
@@ -80,13 +85,14 @@ app.put('/projetoAmbiental/:id', (req, res) => {
 });
 
 // Deletar projeto
-app.delete('/projetoAmbiental/:id', (req, res) => {
+app.delete('/ambiental/:id', (req, res) => {
     const id = req.params.id;
+
     const sql = 'DELETE FROM ambiental WHERE id = ?';
 
     acessaBancoNoServidor.query(sql, [id], (err, result) => {
         if (err) {
-            console.error('DB error (DELETE):', err);
+            console.error('Erro DELETE:', err);
             return res.status(500).json({ error: 'Erro ao deletar projeto' });
         }
 
@@ -98,6 +104,7 @@ app.delete('/projetoAmbiental/:id', (req, res) => {
     });
 });
 
+// Iniciar servidor
 app.listen(3000, () => {
     console.log('Servidor rodando em http://localhost:3000');
 });

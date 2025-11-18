@@ -2,7 +2,7 @@ let editandoId = null;
 
 async function carregarVendas() {
     try {
-        const response = await fetch('http://localhost:3000/projetoAmbiental');
+        const response = await fetch('http://localhost:3000/ambiental');
         if (!response.ok) throw new Error('Erro ao buscar projetos');
         const projetos = await response.json();
 
@@ -60,7 +60,7 @@ async function salvarVenda(id) {
             data_fim: document.getElementById(`i-${id}-4`).value
         };
 
-        const response = await fetch(`http://localhost:3000/projetoAmbiental/${id}`, {
+        const response = await fetch(`http://localhost:3000/ambiental/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

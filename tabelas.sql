@@ -1,5 +1,5 @@
 
-USE api_crud;
+USE ong_ambiental;
 
 CREATE TABLE ambiental (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -1,6 +1,6 @@
 async function carregarVendas() {
     try {
-        const response = await fetch('http://localhost:3000/projetoAmbiental');
+        const response = await fetch('http://localhost:3000/ambiental');
         if (!response.ok) throw new Error('Erro ao buscar projetos');
         const vendas = await response.json();
 
@@ -31,7 +31,7 @@ async function deletarVenda(id) {
     if (!confirm(`Excluir projeto ID ${id}?`)) return;
 
     try {
-        const response = await fetch(`http://localhost:3000/projetoAmbiental/${id}`, { method: 'DELETE' });
+        const response = await fetch(`http://localhost:3000/ambiental/${id}`, { method: 'DELETE' });
         if (response.ok) {
             document.getElementById(`venda-${id}`).remove();
             document.getElementById('message').textContent = 'Projeto excluído com sucesso!';
