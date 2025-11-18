@@ -1,34 +1,49 @@
 let editandoId = null;
 
 async function carregarVendas() {
-    const response = await fetch('http://localhost:3000/vendaCombustivel');
-    const vendas = await response.json();
+    try {
+        const response = await fetch('http://localhost:3000/projetoAmbiental');
+        if (!response.ok) throw new Error('Erro ao buscar projetos');
+        const projetos = await response.json();
 
-    let html = '<table><tr><th>ID</th><th>Tipo de Combustível</th><th>Preço</th><th>Volume Abastecido</th><th>Data Abastecimento</th><th>Ação</th></tr>';
+        let html = '<table><tr><th>ID</th><th>Nome do Projeto</th><th>Tipo</th><th>Descrição</th><th>Data Início</th><th>Data Fim</th><th>Ação</th></tr>';
 
-    vendas.forEach(venda => {
-        const data = venda.data_abastecimento.split('T')[0];
-        html += `<tr id="venda-${venda.id}">
-        <td>${venda.id}</td>
-        <td id="c-${venda.id}-0">${venda.tipo_combustivel}</td>
-        <td id="c-${venda.id}-1">${venda.preco}</td>
-        <td id="c-${venda.id}-2">${venda.volume_abastecido}</td>
-        <td id="c-${venda.id}-3" data-val="${data}">${data}</td>
-        <td><button class="btn-editar" onclick="editarVenda(${venda.id})">✏️</button></td>
-        </tr>`;
-    });
+        projetos.forEach(proj => {
+            const dataInicio = proj.data_inicio ? proj.data_inicio.split('T')[0] : '';
+            const dataFim = proj.data_fim ? proj.data_fim.split('T')[0] : '';
+            const descricaoCurta = proj.descricao ? (proj.descricao.length > 80 ? proj.descricao.slice(0, 77) + '...' : proj.descricao) : '';
+            html += `<tr id="venda-${proj.id}">
+                <td>${proj.id}</td>
+                <td id="c-${proj.id}-0">${proj.nome_projeto}</td>
+                <td id="c-${proj.id}-1">${proj.tipo_projeto}</td>
+                <td id="c-${proj.id}-2">${descricaoCurta}</td>
+                <td id="c-${proj.id}-3" data-val="${dataInicio}">${dataInicio}</td>
+                <td id="c-${proj.id}-4" data-val="${dataFim}">${dataFim}</td>
+                <td><button class="btn-editar" onclick="editarVenda(${proj.id})">✏️</button></td>
+            </tr>`;
+        });
 
-    document.getElementById('tabelaVendas').innerHTML = html + '</table>';
+        document.getElementById('tabelaVendas').innerHTML = html + '</table>';
+    } catch (err) {
+        document.getElementById('tabelaVendas').innerHTML = `<p style="color:red;">${err.message}</p>`;
+    }
 }
 
 function editarVenda(id) {
     if (editandoId) return alert('Salve ou cancele a edição atual primeiro!');
 
     editandoId = id;
-    document.getElementById(`c-${id}-0`).innerHTML = `<input id="i-${id}-0" value="${document.getElementById(`c-${id}-0`).textContent}">`;
-    document.getElementById(`c-${id}-1`).innerHTML = `<input type="number" id="i-${id}-1" value="${document.getElementById(`c-${id}-1`).textContent}" step="0.01">`;
-    document.getElementById(`c-${id}-2`).innerHTML = `<input type="number" id="i-${id}-2" value="${document.getElementById(`c-${id}-2`).textContent}" step="0.01">`;
-    document.getElementById(`c-${id}-3`).innerHTML = `<input type="date" id="i-${id}-3" value="${document.getElementById(`c-${id}-3`).getAttribute('data-val')}">`;
+    const nome = document.getElementById(`c-${id}-0`).textContent;
+    const tipo = document.getElementById(`c-${id}-1`).textContent;
+    const descricao = document.getElementById(`c-${id}-2`).textContent;
+    const dataInicio = document.getElementById(`c-${id}-3`).getAttribute('data-val') || '';
+    const dataFim = document.getElementById(`c-${id}-4`).getAttribute('data-val') || '';
+
+    document.getElementById(`c-${id}-0`).innerHTML = `<input id="i-${id}-0" value="${escapeHtml(nome)}">`;
+    document.getElementById(`c-${id}-1`).innerHTML = `<input id="i-${id}-1" value="${escapeHtml(tipo)}">`;
+    document.getElementById(`c-${id}-2`).innerHTML = `<textarea id="i-${id}-2" rows="2">${escapeHtml(descricao)}</textarea>`;
+    document.getElementById(`c-${id}-3`).innerHTML = `<input type="date" id="i-${id}-3" value="${dataInicio}">`;
+    document.getElementById(`c-${id}-4`).innerHTML = `<input type="date" id="i-${id}-4" value="${dataFim}">`;
 
     document.querySelector(`#venda-${id} td:last-child`).innerHTML = `
         <button class="btn-salvar" onclick="salvarVenda(${id})">💾</button>
@@ -36,28 +51,45 @@ function editarVenda(id) {
 }
 
 async function salvarVenda(id) {
-    const response = await fetch(`http://localhost:3000/vendaCombustivel/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            tipo_combustivel: document.getElementById(`i-${id}-0`).value,
-            preco: document.getElementById(`i-${id}-1`).value,
-            volume_abastecido: document.getElementById(`i-${id}-2`).value,
-            data_abastecimento: document.getElementById(`i-${id}-3`).value
-        })
-    });
+    try {
+        const payload = {
+            nome_projeto: document.getElementById(`i-${id}-0`).value,
+            tipo_projeto: document.getElementById(`i-${id}-1`).value,
+            descricao: document.getElementById(`i-${id}-2`).value,
+            data_inicio: document.getElementById(`i-${id}-3`).value,
+            data_fim: document.getElementById(`i-${id}-4`).value
+        };
 
-    if (response.ok) {
-        editandoId = null;
-        carregarVendas();
-    } else {
-        alert('Erro ao atualizar!');
+        const response = await fetch(`http://localhost:3000/projetoAmbiental/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            editandoId = null;
+            carregarVendas();
+        } else {
+            const err = await response.json();
+            alert('Erro ao atualizar: ' + (err.error || JSON.stringify(err)));
+        }
+    } catch (err) {
+        alert('Erro na requisição: ' + err.message);
     }
 }
 
 function cancelarEdicao() {
     editandoId = null;
     carregarVendas();
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
 }
 
 window.onload = carregarVendas;

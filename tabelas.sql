@@ -1,11 +1,13 @@
+
 USE api_crud;
 
-CREATE TABLE postos_de_gasolina (
+CREATE TABLE ambiental (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    tipo_combustivel VARCHAR(50) NOT NULL,
-    preco DECIMAL(10, 2) NOT NULL,
-    volume_abastecido DECIMAL(10, 2) NOT NULL,
-    data_abastecimento DATE
+    nome_projeto VARCHAR(100) NOT NULL,
+    tipo_projeto VARCHAR(50) NOT NULL, -- reflorestamento, reciclagem, limpeza, etc.
+    descricao TEXT,
+    data_inicio DATE,
+    data_fim DATE
 );
 
-SELECT * FROM postos_de_gasolina;
+SELECT * FROM ambiental;

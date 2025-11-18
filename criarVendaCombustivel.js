@@ -1,25 +1,38 @@
 document.getElementById('formVendaCombustivel').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const tipo_combustivel = document.getElementById('tipo_combustivel').value;
-    const preco = document.getElementById('preco').value;
-    const volume_abastecido = document.getElementById('volume_abastecido').value;
-    const data_abastecimento = document.getElementById('data_abastecimento').value;
+    const nome_projeto = document.getElementById('nome_projeto').value.trim();
+    const tipo_projeto = document.getElementById('tipo_projeto').value.trim();
+    const descricao = document.getElementById('descricao').value.trim();
+    const data_inicio = document.getElementById('data_inicio').value || null;
+    const data_fim = document.getElementById('data_fim').value || null;
 
-    const response = await fetch('http://localhost:3000/vendaCombustivel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tipo_combustivel, preco, volume_abastecido, data_abastecimento })
-    });
+    // validação básica
+    if (!nome_projeto || !tipo_projeto) {
+        document.getElementById('message').textContent = 'Nome e tipo do projeto são obrigatórios.';
+        document.getElementById('message').style.color = 'red';
+        return;
+    }
 
-    const data = await response.json();
+    try {
+        const response = await fetch('http://localhost:3000/projetoAmbiental', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome_projeto, tipo_projeto, descricao, data_inicio, data_fim })
+        });
 
-    if (response.ok) {
-        document.getElementById('message').textContent = 'Venda de combustível cadastrada!';
-        document.getElementById('formVendaCombustivel').reset();
-    } else {
-        document.getElementById('message').textContent = 'Erro: ' + data.error;
+        const data = await response.json();
+
+        if (response.ok) {
+            document.getElementById('message').textContent = 'Projeto cadastrado com sucesso!';
+            document.getElementById('message').style.color = 'green';
+            document.getElementById('formVendaCombustivel').reset();
+        } else {
+            document.getElementById('message').textContent = 'Erro: ' + (data.error || JSON.stringify(data));
+            document.getElementById('message').style.color = 'red';
+        }
+    } catch (err) {
+        document.getElementById('message').textContent = 'Erro na requisição: ' + err.message;
+        document.getElementById('message').style.color = 'red';
     }
 });
-
-

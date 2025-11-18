@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Atualizar Login</title>
+    <title>Atualizar Projeto Ambiental</title>
     <style>
         body {
             display: flex;
@@ -12,22 +12,27 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
         table {
             border-collapse: collapse;
             margin-top: 20px;
+            width: 95%;
+            max-width: 1000px;
         }
 
         th,
         td {
-            border: 1px solid black;
-            padding: 10px;
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: left;
         }
 
-        input {
-            width: 90%;
-            padding: 5px;
+        input, textarea {
+            width: 95%;
+            padding: 6px;
+            box-sizing: border-box;
         }
 
         .btn-editar {
@@ -36,6 +41,7 @@
             border: none;
             padding: 5px 10px;
             cursor: pointer;
+            border-radius: 6px;
         }
 
         .btn-salvar {
@@ -44,6 +50,7 @@
             border: none;
             padding: 5px 10px;
             cursor: pointer;
+            border-radius: 6px;
         }
 
         .btn-cancelar {
@@ -52,12 +59,13 @@
             border: none;
             padding: 5px 10px;
             cursor: pointer;
+            border-radius: 6px;
         }
     </style>
 </head>
 
 <body>
-    <h1>✏️ Atualizar Login</h1>
+    <h1>✏️ Atualizar Projeto Ambiental</h1>
     <div id="tabelaVendas">Carregando...</div>
 
     <script src="AtualizarVendaCombustivel.js"></script>
